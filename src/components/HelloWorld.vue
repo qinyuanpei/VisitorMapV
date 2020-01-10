@@ -7,6 +7,7 @@
 <script>
 import { Scene, PointLayer, Popup } from "@antv/l7";
 import { GaodeMap } from "@antv/l7-maps";
+import AV from "leancloud-storage"
 
 export default {
   data() {
@@ -22,16 +23,21 @@ export default {
         zoom: 2.5
       })
     });
-
-    fetch("https://gw.alipayobjects.com/os/basement_prod/9078fd36-ce8d-4ee2-91bc-605db8315fdf.csv")
-      .then(res => res.text())
+    
+    AV.init({appId: "JbHqRp2eMrTgIwYpfERH0g79-gzGzoHsz", appKey: "VsiKvLuiBGvJL1XrAfv7siY2", serverURLs: "https://jbhqrp2e.lc-cn-n1-shared.com"});
+    var query = new AV.Query('LocationSummary');
+    query.limit(1000);
+    query.find()
       .then(data => {
         const pointLayer = new PointLayer({})
-          .source(data, {
+          .source(JSON.stringify(data), {
             parser: {
-              type: "csv",
-              x: "Longitude",
-              y: "Latitude"
+              type: "json",
+              x: "longitude",
+              y: "latitude",
+              total_pv: "total_pv",
+              total_uv: "total_uv",
+              city: "city"
             }
           })
           .shape("circle")
@@ -49,10 +55,10 @@ export default {
             closeButton: false
           })
             .setLnglat(e.lngLat)
-            .setHTML(`<span>车次: ${e.feature.info}</span>`);
+            .setHTML(`<span>${e.feature.city}/${e.feature.total_pv}/${e.feature.total_uv}/</span>`);
           scene.addPopup(popup);
         });
-        
+
         scene.addLayer(pointLayer);
       });
   }
