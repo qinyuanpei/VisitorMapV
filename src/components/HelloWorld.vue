@@ -5,9 +5,9 @@
 </template>
 
 <script>
-import { Scene, PointLayer, Popup } from "@antv/l7";
+import { Scene, PointLayer,  Popup } from "@antv/l7";
 import { GaodeMap } from "@antv/l7-maps";
-import AV from "leancloud-storage"
+import AV from "leancloud-storage";
 
 export default {
   data() {
@@ -23,44 +23,52 @@ export default {
         zoom: 2.5
       })
     });
-    
-    AV.init({appId: "JbHqRp2eMrTgIwYpfERH0g79-gzGzoHsz", appKey: "VsiKvLuiBGvJL1XrAfv7siY2", serverURLs: "https://jbhqrp2e.lc-cn-n1-shared.com"});
-    var query = new AV.Query('LocationSummary');
-    query.limit(1000);
-    query.find()
-      .then(data => {
-        const pointLayer = new PointLayer({})
-          .source(JSON.stringify(data), {
-            parser: {
-              type: "json",
-              x: "longitude",
-              y: "latitude",
-              total_pv: "total_pv",
-              total_uv: "total_uv",
-              city: "city"
-            }
-          })
-          .shape("circle")
-          .active(true)
-          .animate(true)
-          .size(56)
-          .color("#4cfd47")
-          .style({
-            opacity: 1
-          });
 
-        pointLayer.on("mousemove", e => {
-          const popup = new Popup({
-            offsets: [0, 0],
-            closeButton: false
-          })
-            .setLnglat(e.lngLat)
-            .setHTML(`<span>${e.feature.city}/${e.feature.total_pv}/${e.feature.total_uv}/</span>`);
-          scene.addPopup(popup);
+    AV.init({
+      appId: "JbHqRp2eMrTgIwYpfERH0g79-gzGzoHsz",
+      appKey: "VsiKvLuiBGvJL1XrAfv7siY2",
+      serverURLs: "https://jbhqrp2e.lc-cn-n1-shared.com"
+    });
+    var query = new AV.Query("LocationSummary");
+    query.limit(1000);
+    query.find().then(data => {
+      data = data.map(x => x._serverData);
+
+      //pointLayer
+      const pointLayer = new PointLayer({})
+        .source(data, {
+          parser: {
+            type: "json",
+            x: "longitude",
+            y: "latitude",
+            total_pv: "total_pv",
+            total_uv: "total_uv",
+            city: "city"
+          }
+        })
+        .shape("circle")
+        .active(true)
+        .animate(true)
+        .size(56)
+        .color("#4cfd47")
+        .style({
+          opacity: 1
         });
 
-        scene.addLayer(pointLayer);
+      pointLayer.on("mousemove", e => {
+        const popup = new Popup({
+          offsets: [0, 0],
+          closeButton: false
+        })
+          .setLnglat(e.lngLat)
+          .setHTML(
+            `<span>${e.feature.city}</span><br/><span>PV：${e.feature.total_pv}，UV：${e.feature.total_uv}</span>`
+          );
+        scene.addPopup(popup);
       });
+      
+      scene.addLayer(pointLayer);
+    });
   }
 };
 </script>
