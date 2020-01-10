@@ -1,58 +1,144 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank" rel="noopener">eslint</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
+  <div>
+    <div id="map"></div>
   </div>
 </template>
 
 <script>
+import { Scene, LineLayer, PointLayer, Popup } from "@antv/l7";
+import { Mapbox } from "@antv/l7-maps";
+
 export default {
-  name: 'HelloWorld',
-  props: {
-    msg: String
+  data() {
+    return {};
+  },
+  mounted() {
+    const scene = new Scene({
+      id: "map",
+      map: new Mapbox({
+        pitch: 0,
+        style: {
+          version: 8,
+          sprite: "https://lzxue.github.io/font-glyphs/sprite/sprite",
+          glyphs:
+            "https://gw.alipayobjects.com/os/antvdemo/assets/mapbox/glyphs/{fontstack}/{range}.pbf",
+          sources: {},
+          layers: [
+            {
+              id: "background",
+              type: "background",
+              paint: {
+                "background-color": "#2b2b3a"
+              }
+            }
+          ]
+        },
+        center: [3.438, 40.16797],
+        zoom: 4
+      })
+    });
+    Promise.all([
+      fetch(
+        "https://gw.alipayobjects.com/os/antvdemo/assets/data/world.geo.json"
+      ).then(d => d.json()),
+      fetch(
+        "https://gw.alipayobjects.com/os/basement_prod/4472780b-fea1-4fc2-9e4b-3ca716933dc7.json"
+      ).then(d => d.text()),
+      fetch(
+        "https://gw.alipayobjects.com/os/basement_prod/a5ac7bce-181b-40d1-8a16-271356264ad8.json"
+      ).then(d => d.text())
+    ]).then(function onLoad([world, dot, flyline]) {
+      const dotData = eval(dot);
+      const flydata = eval(flyline).map(item => {
+        const latlng1 = item.from.split(",").map(e => {
+          return e * 1;
+        });
+        const latlng2 = item.to.split(",").map(e => {
+          return e * 1;
+        });
+        return { coord: [latlng1, latlng2] };
+      });
+      // const worldFill = new PolygonLayer()
+      //   .source(world)
+      //   .color('#98E3FA')
+      //   .shape('fill')
+      //   .style({
+      //     opacity: 1
+      //   });
+
+      const worldLine = new LineLayer()
+        .source(world)
+        .color("#41fc9d")
+        .size(0.5)
+        .style({
+          opacity: 0.4
+        });
+      const dotPoint = new PointLayer()
+        .source(dotData, {
+          parser: {
+            type: "json",
+            x: "lng",
+            y: "lat",
+            info: "info"
+          }
+        })
+        .shape("circle")
+        .color("#ffed11")
+        .animate(true)
+        .size(40)
+        .style({
+          opacity: 1.0
+        });
+      dotPoint.on("mousemove", e => {
+        const popup = new Popup({
+          offsets: [0, 0],
+          closeButton: false
+        })
+          .setLnglat(e.lngLat)
+          .setHTML(`<span>车次: ${e.feature.info}</span>`);
+        scene.addPopup(popup);
+      });
+      const flyLine = new LineLayer()
+        .source(flydata, {
+          parser: {
+            type: "json",
+            coordinates: "coord"
+          }
+        })
+        .color("#ff6b34")
+        .shape("arc3d")
+        .size(2)
+        .animate({
+          interval: 2,
+          trailLength: 2,
+          duration: 1
+        })
+        .style({
+          opacity: 1
+        });
+      // scene.addLayer(worldFill);
+      scene.addLayer(worldLine);
+      scene.addLayer(dotPoint);
+      scene.addLayer(flyLine);
+    });
   }
-}
+};
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-h3 {
-  margin: 40px 0 0;
+<style>
+::-webkit-scrollbar {
+  display: none;
 }
-ul {
-  list-style-type: none;
-  padding: 0;
+
+html,
+body {
+  overflow: hidden;
+  margin: 0;
 }
-li {
-  display: inline-block;
-  margin: 0 10px;
+
+#map {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100%;
 }
-a {
-  color: #42b983;
-}
-</style>
