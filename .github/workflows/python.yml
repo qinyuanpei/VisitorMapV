@@ -25,5 +25,8 @@ jobs:
         pip install -r requirements.txt
     - name: Run Scripts
       run: |
-        cd scripts
-        python locationSummary.py ${{ secrets.LEANCLOUD-APP-ID }} ${{ secrets.LEANCLOUD-APP-KEY }}  ${{ secrets.GAODE_MAP_API_KEY }} 
+        python ./scripts/locationSummary.py 
+      with: 
+        LEANCLOUD-APP-ID: ${{secrets.LEANCLOUD-APP-ID}}
+        LEANCLOUD-APP-KEY: ${{secrets.LEANCLOUD-APP-KEY}}
+        GAODE_MAP_API_KEY: ${{secrets.GAODE_MAP_API_KEY}}
