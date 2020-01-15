@@ -1,6 +1,7 @@
 import leancloud
 from collections import Counter
 import requests
+import sys
 import json
 
 VisitorRecord = leancloud.Object.extend('VisitorRecord')
