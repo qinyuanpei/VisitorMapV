@@ -3,15 +3,9 @@ from collections import Counter
 import requests
 import json
 
-leancloud.init("JbHqRp2eMrTgIwYpfERH0g79-gzGzoHsz", "VsiKvLuiBGvJL1XrAfv7siY2")
-
 VisitorRecord = leancloud.Object.extend('VisitorRecord')
-
 LocationSummary = leancloud.Object.extend('LocationSummary')
-
 session = requests.session()
-
-GaodeMap_API_KEY = 'f9b47056389b4a9fcd02a79040fb9f3f'
 
 def get_geoInfo(query): 
     geoInfo = []
@@ -26,8 +20,8 @@ def get_geoInfo(query):
         geoInfo.extend(geo_list)
     return geoInfo
 
-def get_regeo(obj):
-    url = 'http://restapi.amap.com/v3/geocode/regeo?key={apiKey}&location={lng},{lat}'.format(apiKey=GaodeMap_API_KEY, lng=obj.get('longitude'), lat=obj.get('latitude'))
+def get_regeo(obj, apiKey):
+    url = 'http://restapi.amap.com/v3/geocode/regeo?key={apiKey}&location={lng},{lat}'.format(apiKey=apiKey, lng=obj.get('longitude'), lat=obj.get('latitude'))
     res = session.get(url)
     data = json.loads(res.text)
     print(data)
@@ -40,9 +34,9 @@ def get_regeo(obj):
             obj.set('country',data['regeocode']['addressComponent']['country'])
     return obj
 
-def save_locationSummary(obj):
+def save_locationSummary(obj, apiKey):
     query = LocationSummary.query
-    obj = get_regeo(obj)
+    obj = get_regeo(obj, apiKey)
     query.equal_to('latitude',obj.get('latitude'))
     query.equal_to('longitude', obj.get('longitude'))
     query_list = query.find()
@@ -57,21 +51,30 @@ def save_locationSummary(obj):
     else: 
         obj.save()
 
-geo_list = get_geoInfo(VisitorRecord.query)
-latlng_list = list(map(lambda x:(x['latitude'],x['longitude']), geo_list))
-for group in Counter(latlng_list).items():
-    location = LocationSummary()
-    lat = group[0][0]
-    lng = group[0][1]
-    location.set('latitude',lat)
-    location.set('longitude',lng)
-    location.set('total_pv',group[1])
-    geoInfos = list(filter(lambda x:x['latitude'] == lat and x['longitude'] == lng, geo_list))
-    geoInfo = geoInfos[0] 
-    geoUsers = list(map(lambda x:x['ip'], geoInfos))
-    location.set('total_uv',len(Counter(geoUsers).items()))
-    location.set('city',geoInfo.get('city',''))
-    location.set('region',geoInfo.get('region',''))
-    location.set('country',geoInfo.get('country'))
-    save_locationSummary(location)
+def run(appKey, appId, apiKey):
+    leancloud.init(appKey, appId)
+    geo_list = get_geoInfo(VisitorRecord.query)
+    latlng_list = list(map(lambda x:(x['latitude'],x['longitude']), geo_list))
+    for group in Counter(latlng_list).items():
+        location = LocationSummary()
+        lat = group[0][0]
+        lng = group[0][1]
+        location.set('latitude',lat)
+        location.set('longitude',lng)
+        location.set('total_pv',group[1])
+        geoInfos = list(filter(lambda x:x['latitude'] == lat and x['longitude'] == lng, geo_list))
+        geoInfo = geoInfos[0] 
+        geoUsers = list(map(lambda x:x['ip'], geoInfos))
+        location.set('total_uv',len(Counter(geoUsers).items()))
+        location.set('city',geoInfo.get('city',''))
+        location.set('region',geoInfo.get('region',''))
+        location.set('country',geoInfo.get('country'))
+        save_locationSummary(location,apiKey)
+
+if (__name__ == '__main__'):
+    if (len(sys.argv) < 3):
+        print('参数错误, 请提供LeanCloud的appKey/appId，以及高德地图apiKey')
+        return
+
+    run(sys.argv[0],sys.argv[1],sys.argv[2])
     
