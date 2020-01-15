@@ -3,21 +3,16 @@ from collections import Counter
 import requests
 import json
 
-# 初始化LeanCloud
 leancloud.init("JbHqRp2eMrTgIwYpfERH0g79-gzGzoHsz", "VsiKvLuiBGvJL1XrAfv7siY2")
 
-# 访客记录
 VisitorRecord = leancloud.Object.extend('VisitorRecord')
 
-# 位置汇总
 LocationSummary = leancloud.Object.extend('LocationSummary')
 
 session = requests.session()
 
-#高德地图ApiKey
 GaodeMap_API_KEY = 'f9b47056389b4a9fcd02a79040fb9f3f'
 
-# 查询地理信息
 def get_geoInfo(query): 
     geoInfo = []
     count = 0
