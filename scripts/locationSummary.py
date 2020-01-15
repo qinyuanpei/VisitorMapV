@@ -1,5 +1,6 @@
 import leancloud
 from collections import Counter
+import requests
 import json
 
 # 初始化LeanCloud
@@ -10,6 +11,11 @@ VisitorRecord = leancloud.Object.extend('VisitorRecord')
 
 # 位置汇总
 LocationSummary = leancloud.Object.extend('LocationSummary')
+
+session = requests.session()
+
+#高德地图ApiKey
+GaodeMap_API_KEY = 'f9b47056389b4a9fcd02a79040fb9f3f'
 
 # 查询地理信息
 def get_geoInfo(query): 
@@ -25,8 +31,23 @@ def get_geoInfo(query):
         geoInfo.extend(geo_list)
     return geoInfo
 
+def get_regeo(obj):
+    url = 'http://restapi.amap.com/v3/geocode/regeo?key={apiKey}&location={lng},{lat}'.format(apiKey=GaodeMap_API_KEY, lng=obj.get('longitude'), lat=obj.get('latitude'))
+    res = session.get(url)
+    data = json.loads(res.content)
+    print(data)
+    if data['status'] == '1':
+        if(type(data['regeocode']['addressComponent']['district']) == type('')):
+            obj.set('region',data['regeocode']['addressComponent']['district'])
+        if(type(data['regeocode']['addressComponent']['city']) == type('')):
+            obj.set('city',data['regeocode']['addressComponent']['city'])
+        if(type(data['regeocode']['addressComponent']['country']) == type('')):
+            obj.set('country',data['regeocode']['addressComponent']['country'])
+    return obj
+
 def save_locationSummary(obj):
     query = LocationSummary.query
+    obj = get_regeo(obj)
     query.equal_to('latitude',obj.get('latitude'))
     query.equal_to('longitude', obj.get('longitude'))
     query_list = query.find()
@@ -43,7 +64,6 @@ def save_locationSummary(obj):
 
 geo_list = get_geoInfo(VisitorRecord.query)
 latlng_list = list(map(lambda x:(x['latitude'],x['longitude']), geo_list))
-print(Counter(latlng_list).items())
 for group in Counter(latlng_list).items():
     location = LocationSummary()
     lat = group[0][0]
