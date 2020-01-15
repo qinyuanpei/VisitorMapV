@@ -73,5 +73,5 @@ def run(appId, appKey, apiKey):
         save_locationSummary(location,apiKey)
 
 if (__name__ == '__main__'):
-    run(sys.argv[0],sys.argv[1],sys.argv[2])
+    run(sys.argv[1],sys.argv[2],sys.argv[3])
     
