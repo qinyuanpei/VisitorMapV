@@ -72,9 +72,5 @@ def run(appId, appKey, apiKey):
         save_locationSummary(location,apiKey)
 
 if (__name__ == '__main__'):
-    if (len(sys.argv) < 3):
-        print('参数错误, 请提供LeanCloud的appKey/appId，以及高德地图apiKey')
-        return
-
     run(sys.argv[0],sys.argv[1],sys.argv[2])
     
