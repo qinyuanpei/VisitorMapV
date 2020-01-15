@@ -29,7 +29,7 @@ def get_geoInfo(query):
 def get_regeo(obj):
     url = 'http://restapi.amap.com/v3/geocode/regeo?key={apiKey}&location={lng},{lat}'.format(apiKey=GaodeMap_API_KEY, lng=obj.get('longitude'), lat=obj.get('latitude'))
     res = session.get(url)
-    data = json.loads(res.content)
+    data = json.loads(res.text)
     print(data)
     if data['status'] == '1':
         if(type(data['regeocode']['addressComponent']['district']) == type('')):
