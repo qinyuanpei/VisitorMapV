@@ -1,10 +1,9 @@
-name: Python package
+name: Run Python Scripts
 
 on: [push]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 4
