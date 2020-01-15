@@ -51,8 +51,8 @@ def save_locationSummary(obj, apiKey):
     else: 
         obj.save()
 
-def run(appKey, appId, apiKey):
-    leancloud.init(appKey, appId)
+def run(appId, appKey, apiKey):
+    leancloud.init(appId, appKey)
     geo_list = get_geoInfo(VisitorRecord.query)
     latlng_list = list(map(lambda x:(x['latitude'],x['longitude']), geo_list))
     for group in Counter(latlng_list).items():

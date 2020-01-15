@@ -1,6 +1,9 @@
 name: Run Python Scripts
 
-on: [push]
+on: 
+  push: 
+  schedule:
+    - cron: '0 21 * * *'
 
 jobs:
   build:
@@ -23,4 +26,4 @@ jobs:
     - name: Run Scripts
       run: |
         cd scripts
-        python locationSummary.py
+        python locationSummary.py ${{ secrets.LEANCLOUD-APP-ID }} ${{ secrets.LEANCLOUD-APP-KEY }}  ${{ secrets.GAODE_MAP_API_KEY }} 
