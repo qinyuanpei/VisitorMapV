@@ -16,7 +16,7 @@ script:
   # - npm run lint
   # - npm run test:ci
   #- npm run test:unit
-  - npm run build
+  - npm run build:prod
 
 after_script:
   - git config user.name "qinyuanpei"
