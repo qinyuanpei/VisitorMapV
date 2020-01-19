@@ -5,37 +5,47 @@
 </template>
 
 <script>
-import { Scene, PointLayer,  Popup } from "@antv/l7";
+import { Scene, PointLayer, Popup } from "@antv/l7";
 import { GaodeMap } from "@antv/l7-maps";
 import AV from "leancloud-storage";
 
 export default {
   data() {
-    return {};
+    return {
+      scene: null,
+      markerLayer: null
+    };
   },
   mounted() {
-    const scene = new Scene({
-      id: "map",
-      map: new GaodeMap({
-        pitch: 0,
-        style: "dark",
-        center: [112, 23.69],
-        zoom: 2.5
-      })
-    });
-
-    AV.init({
-      appId: "JbHqRp2eMrTgIwYpfERH0g79-gzGzoHsz",
-      appKey: "VsiKvLuiBGvJL1XrAfv7siY2",
-      serverURLs: "https://jbhqrp2e.lc-cn-n1-shared.com"
-    });
-    var query = new AV.Query("LocationSummary");
-    query.limit(1000);
-    query.find().then(data => {
-      data = data.map(x => x._serverData);
-
-      //pointLayer
-      const pointLayer = new PointLayer({})
+    this.initMap();
+    this.initAV();
+    this.fetchData();
+  },
+  methods: {
+    initMap: function() {
+      this.scene = new Scene({
+        id: "map",
+        map: new GaodeMap({
+          pitch: 0,
+          style: "dark",
+          center: [112, 23.69],
+          zoom: 2.5
+        })
+      });
+    },
+    initAV: function() {
+      AV.init({
+        appId: "JbHqRp2eMrTgIwYpfERH0g79-gzGzoHsz",
+        appKey: "VsiKvLuiBGvJL1XrAfv7siY2",
+        serverURLs: "https://jbhqrp2e.lc-cn-n1-shared.com"
+      });
+    },
+    drawLayer: function(data) {
+      var self = this;
+      if (self.markerLayer) {
+        self.scene.removeLayer(self.markerLayer);
+      }
+      self.markerLayer = new PointLayer({})
         .source(data, {
           parser: {
             type: "json",
@@ -54,8 +64,7 @@ export default {
         .style({
           opacity: 1
         });
-
-      pointLayer.on("mousemove", e => {
+      self.markerLayer.on("mousemove", e => {
         const popup = new Popup({
           offsets: [0, 0],
           closeButton: false
@@ -64,11 +73,19 @@ export default {
           .setHTML(
             `<span>${e.feature.city}</span><br/><span>PV：${e.feature.total_pv}，UV：${e.feature.total_uv}</span>`
           );
-        scene.addPopup(popup);
+        self.scene.addPopup(popup);
       });
-      
-      scene.addLayer(pointLayer);
-    });
+      self.scene.addLayer(self.markerLayer);
+    },
+    fetchData: function() {
+      var self = this;
+      var query = new AV.Query("LocationSummary");
+      query.limit(1000);
+      query.find().then(data => {
+        data = data.map(x => x._serverData);
+        self.drawLayer(data);
+      });
+    }
   }
 };
 </script>
