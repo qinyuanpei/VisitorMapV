@@ -71,7 +71,7 @@ module.exports = {
     // 配置高于chainWebpack中关于 css loader 的配置
     css: {
         // 是否开启支持 foo.module.css 样式
-        modules: false,
+        requireModuleExtension: false,
 
         // 是否使用 css 分离插件 ExtractTextPlugin，采用独立样式文件载入，不采用 <style> 方式内联至 html 文件中
         extract: true,
