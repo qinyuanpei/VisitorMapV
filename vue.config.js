@@ -95,17 +95,11 @@ module.exports = {
     // https://webpack.js.org/configuration/dev-server/
     devServer: {
         open: true,
-
         host: '127.0.0.1',
-
         port: 3000,
-
         https: false,
-
         hotOnly: false,
-
         proxy: null,
-
         before: app => {}
     },
     // 构建时开启多进程处理 babel 编译
