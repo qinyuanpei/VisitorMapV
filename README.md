@@ -1,5 +1,7 @@
 # VisitorMapV
-[个人博客](https://blog.yuanpei.me/)访客可视化，基于Antv的L7
+地理可视化，基于Antv的L7，访客数据来自个人博客：[https://blog.yuanpei.me/](https://blog.yuanpei.me/)
+
+[查看演示](https://qinyuanpei.github.io/VisitorMapV/)
 
 ## Project setup
 ```
