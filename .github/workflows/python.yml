@@ -11,7 +11,7 @@ jobs:
     strategy:
       max-parallel: 4
       matrix:
-        python-version: [3.5]
+        python-version: [3.5, 3.6]
 
     steps:
     - uses: actions/checkout@v1
@@ -22,8 +22,8 @@ jobs:
     - name: Install Dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install leancloud
-        pip install -r requirements.txt
+        python -m pip install leancloud
+        python -m pip install -r requirements.txt
     - name: Run Scripts
       run: |
         python ./scripts/locationSummary.py $LEANCLOUD_APP_ID $LEANCLOUD_APP_KEY $GAODE_MAP_API_KEY
