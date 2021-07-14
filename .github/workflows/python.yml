@@ -1,4 +1,4 @@
-name: Run Python Scripts
+name: RefreshLocations
 
 on: 
   push: 
