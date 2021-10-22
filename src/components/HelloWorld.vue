@@ -71,7 +71,7 @@ export default {
         })
           .setLnglat(e.lngLat)
           .setHTML(
-            `<span>${e.feature.city}</span><br/><span>PV：${e.feature.total_pv}，UV：${e.feature.total_uv}</span>`
+            `<span>${e.feature.city}</span><br/><span>${e.feature.total_uv}</span>个人来过，共<span>${e.feature.total_pv}</span>个足迹，UV：`
           );
         self.scene.addPopup(popup);
       });
