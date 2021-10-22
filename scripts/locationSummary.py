@@ -18,8 +18,7 @@ def get_geoInfo(query):
         query_list = query.find()
         count += len(query_list)
         geo_list = list(map(lambda x:x.get('visitor_geo'), query_list))
-        print(type(geo_list[0]))
-        geo_list = list(filter(lambda x:x.has_key('latitude') and x.has_key('longitude'), geo_list))
+        geo_list = list(filter(lambda x:'latitude' in x and 'longitude' in x, geo_list))
         geoInfo.extend(geo_list)
 
     return geoInfo
