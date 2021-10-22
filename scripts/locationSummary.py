@@ -18,7 +18,9 @@ def get_geoInfo(query):
         query_list = query.find()
         count += len(query_list)
         geo_list = list(map(lambda x:x.get('visitor_geo'), query_list))
+        geo_list = list(filter(lambda x:x.has_key('latitude') and x.has_key('longitude'), geo_list))
         geoInfo.extend(geo_list)
+
     return geoInfo
 
 def get_regeo(obj, apiKey):
@@ -55,10 +57,6 @@ def save_locationSummary(obj, apiKey):
 def run(appId, appKey, apiKey):
     leancloud.init(appId, appKey)
     geo_list = get_geoInfo(VisitorRecord.query)
-    print(geo_list)
-    print(geo_list[0])
-    print(geo_list[0]['latitude'])
-    print(geo_list[0]['longitude'])
     latlng_list = list(map(lambda x:(x['latitude'],x['longitude']), geo_list))
     for group in Counter(latlng_list).items():
         location = LocationSummary()
