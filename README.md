@@ -1,4 +1,4 @@
-# VisitorMapV
+﻿# VisitorMapV
 地理可视化，基于Antv的L7，访客数据来自个人博客：[https://blog.yuanpei.me/](https://blog.yuanpei.me/)
 
 [查看演示](https://qinyuanpei.github.io/VisitorMapV/)
@@ -30,3 +30,6 @@ npm run lint
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+
+
