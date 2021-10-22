@@ -56,6 +56,9 @@ def run(appId, appKey, apiKey):
     leancloud.init(appId, appKey)
     geo_list = get_geoInfo(VisitorRecord.query)
     print(geo_list)
+    print(geo_list[0])
+    print(geo_list[0]['latitude'])
+    print(geo_list[0]['longitude'])
     latlng_list = list(map(lambda x:(x['latitude'],x['longitude']), geo_list))
     for group in Counter(latlng_list).items():
         location = LocationSummary()
